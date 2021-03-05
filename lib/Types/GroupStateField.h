@@ -27,6 +27,8 @@ namespace GroupStateFieldNames {
 
   // For use with HomeAssistant
   static const char COLOR_MODE[] = "color_mode";
+
+  static const char LONG_PRESS[] = "long_press";
 };
 
 enum class GroupStateField {
@@ -50,6 +52,7 @@ enum class GroupStateField {
   OH_COLOR,
   HEX_COLOR,
   COLOR_MODE,
+  LONG_PRESS
 };
 
 class GroupStateFieldHelpers {
