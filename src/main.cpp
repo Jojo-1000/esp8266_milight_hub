@@ -169,6 +169,13 @@ void onPacketSentHandler(uint8_t* packet, const MiLightRemoteConfig& config) {
   httpServer->handlePacketSent(packet, remoteConfig, bulbId, result);
 }
 
+uint8_t listenFilterBits = 0b0000100;
+static_assert(MiLightRadioConfig::NUM_CONFIGS < sizeof(listenFilterBits)*8, "Listen filter has too few bits");
+
+bool listenFilter(uint8_t radioType) {
+  return listenFilterBits & (1 << radioType);
+}
+
 /**
  * Listen for packets on one radio config.  Cycles through all configs as its
  * called.
@@ -180,8 +187,17 @@ void handleListen() {
   if (! settings.listenRepeats || packetSender->isSending()) {
     return;
   }
-
-  currentRadioType = 2;  
+  uint8_t i = 1; // Try next radio types
+  for(; i < radios->getNumRadios(); ++i){
+    if(listenFilter((currentRadioType + i) % radios->getNumRadios())) {
+      currentRadioType += i;
+      break;
+    }
+  }
+  if(i == radios->getNumRadios()){
+    // Listening disabled
+    return;
+  }
   std::shared_ptr<MiLightRadio> radio = radios->switchRadio(currentRadioType % radios->getNumRadios());
 
   for (size_t i = 0; i < settings.listenRepeats; i++) {
