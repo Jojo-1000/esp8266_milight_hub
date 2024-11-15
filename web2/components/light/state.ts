@@ -49,6 +49,15 @@ function devicesAreEqual(a: Device, b: Device) {
   );
 }
 
+// Also considers group 0
+function devicesAreMatching(a: Device, b: Device) {
+  return (
+    a.device_id === b.device_id &&
+    a.device_type === b.device_type &&
+    (a.group_id === 0 || b.group_id === 0 || a.group_id == b.group_id)
+  );
+}
+
 // Reducer function
 export function reducer(
   state: LightIndexState,
@@ -59,7 +68,7 @@ export function reducer(
       return {
         ...state,
         lights: state.lights.map((light) =>
-          devicesAreEqual(light.device, action.device)
+          devicesAreMatching(light.device, action.device)
             ? { ...light, state: { ...light.state, ...action.payload } }
             : light
         ),

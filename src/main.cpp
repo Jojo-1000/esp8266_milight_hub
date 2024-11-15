@@ -151,8 +151,21 @@ void onPacketSentHandler(uint8_t* packet, const MiLightRemoteConfig& config) {
     if (groupState != NULL) {
       bulbStateUpdater->enqueueUpdate(bulbId, *groupState);
     }
+    // Update all groups if it was group id 0
+    if(bulbId.groupId == 0){
+      BulbId groupId = bulbId;
+      for(int i = 1; i <= remoteConfig.numGroups; ++i){
+        groupId.groupId = i;
+        mqttClient->sendUpdate(remoteConfig, groupId.deviceId, groupId.groupId, output);
+        GroupState* state = stateStore->get(groupId);
+        if(state != NULL) {
+          bulbStateUpdater->enqueueUpdate(groupId, *state);
+        }
+      }
+    }
   }
 
+  // Group 0 is handled in the client JS to minimize traffic
   httpServer->handlePacketSent(packet, remoteConfig, bulbId, result);
 }
 
@@ -408,7 +421,7 @@ void postConnectSetup() {
 }
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   String ssid = "ESP" + String(getESPId());
 
   // load up our persistent settings from the file system

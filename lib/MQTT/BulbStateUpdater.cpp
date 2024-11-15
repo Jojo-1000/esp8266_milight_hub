@@ -25,13 +25,17 @@ void BulbStateUpdater::enqueueUpdate(BulbId bulbId, GroupState& groupState) {
 }
 
 void BulbStateUpdater::loop() {
-  while (canFlush() && staleGroups.size() > 0) {
-    BulbId bulbId = staleGroups.shift();
-    GroupState* groupState = stateStore.get(bulbId);
+  // Flush all queued messages at once, instead of applying the rate limit between the queue
+  // Otherwise, rate limits are also applied to each group after a group 0 change
+  if(canFlush()) {
+    while (staleGroups.size() > 0) {
+      BulbId bulbId = staleGroups.shift();
+      GroupState* groupState = stateStore.get(bulbId);
 
-    if (groupState->isMqttDirty()) {
-      flushGroup(bulbId, *groupState);
-      groupState->clearMqttDirty();
+      if (groupState->isMqttDirty()) {
+        flushGroup(bulbId, *groupState);
+        groupState->clearMqttDirty();
+      }
     }
   }
 }
