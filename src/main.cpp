@@ -181,7 +181,8 @@ void handleListen() {
     return;
   }
 
-  std::shared_ptr<MiLightRadio> radio = radios->switchRadio(currentRadioType++ % radios->getNumRadios());
+  currentRadioType = 2;  
+  std::shared_ptr<MiLightRadio> radio = radios->switchRadio(currentRadioType % radios->getNumRadios());
 
   for (size_t i = 0; i < settings.listenRepeats; i++) {
     if (radios->available()) {
