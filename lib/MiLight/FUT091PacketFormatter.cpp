@@ -44,7 +44,6 @@ BulbId FUT091PacketFormatter::parsePacket(const uint8_t *packet, JsonObject resu
       bulbId.groupId = arg-5;
       result[GroupStateFieldNames::LONG_PRESS] = long_press;
       if (long_press) {
-        result[GroupStateFieldNames::STATE] = "ON";
         result[GroupStateFieldNames::COMMAND] = MiLightCommandNames::NIGHT_MODE;
       }
     }
